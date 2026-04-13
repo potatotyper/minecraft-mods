@@ -14,6 +14,6 @@ No mods needed to join, all you need is minecraft version 26.1.2
 
 ---
 
-##Links
+## Links
 
 - https://modrinth.com/mod/disable-elytra-fabric
