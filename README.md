@@ -15,3 +15,4 @@ No mods needed to join, all you need is minecraft version 26.1.2
 ## Links
 
 - https://modrinth.com/mod/disable-elytra-fabric
+- https://modrinth.com/mod/server-auto-click
