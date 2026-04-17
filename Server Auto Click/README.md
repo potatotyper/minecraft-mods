@@ -1,27 +1,35 @@
 # Server Auto Click
 
-A Fabric client mod for Minecraft 26.1.2 that allows players to automatically click at a set interval using in-game commands.
+A Fabric server mod for Minecraft 26.1.2 that lets players use timed auto-attack and auto-consume commands without installing the mod client-side.
 
 ## Features
 
-- Trigger automatic clicking with customizable intervals.
-- Choose between `left` and `right` click actions.
-- Supported intervals range from 0.5 seconds up to 60 seconds.
+- Server-side commands, so players do not need the mod installed on their client.
+- `/autoattack` attacks at a configurable interval for a configured duration.
+- `/autoconsume` repeatedly uses the held item (right-click behavior) for a configured duration.
 
 ## Usage
 
-Use the `/autoclick` client command in-game to start or configure the auto-clicker:
+Use these server commands in-game:
 
 ```
-/autoclick <interval> <button>
+/autoattack <interval> <duration>
+/autoconsume <duration>
 ```
 
-- `<interval>`: Time between clicks in seconds (must be between 0.5 and 60).
-- `<button>`: The mouse button to click (`left` or `right`).
+- `<interval>`: Attack interval in seconds (0.5 to 60).
+- `<duration>`: How long to run in seconds (0.5 to 600).
+
+Optional stop commands:
+
+```
+/autoattack off
+/autoconsume off
+```
 
 **Examples:**
-- `/autoclick 1 left` - Auto-clicks the left mouse button every 1 second.
-- `/autoclick 0.5 right` - Auto-clicks the right mouse button every half second.
+- `/autoattack 1 15` - Attacks once per second for 15 seconds.
+- `/autoconsume 8` - Uses held item repeatedly for 8 seconds.
 
 ## Setup & Building
 
