@@ -16,6 +16,7 @@ Use these server commands in-game:
 /autoattack <interval> <duration>
 /autoconsume <duration>
 ```
+Duration can be infinite.
 
 - `<interval>`: Attack interval in seconds (0.5 to 60).
 - `<duration>`: How long to run in seconds (0.5 to 600).
@@ -30,11 +31,3 @@ Optional stop commands:
 **Examples:**
 - `/autoattack 1 15` - Attacks once per second for 15 seconds.
 - `/autoconsume 8` - Uses held item repeatedly for 8 seconds.
-
-## Setup & Building
-
-For setup instructions, please see the [Fabric Documentation page](https://docs.fabricmc.net/) related to your IDE.
-
-## License
-
-This project is available under the CC0 license. Feel free to learn from it and incorporate it into your own projects.
