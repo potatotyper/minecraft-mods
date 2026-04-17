@@ -25,6 +25,8 @@ public final class AutoClickCommand {
 					.then(Commands.literal("off")
 						.executes(AutoClickCommand::disableAutoAttack))
 					.then(Commands.argument("interval", DoubleArgumentType.doubleArg(MIN_INTERVAL_SECONDS, MAX_INTERVAL_SECONDS))
+						.then(Commands.literal("infinite")
+							.executes(AutoClickCommand::enableInfiniteAutoAttack))
 						.then(Commands.argument("duration", DoubleArgumentType.doubleArg(MIN_DURATION_SECONDS, MAX_DURATION_SECONDS))
 							.executes(AutoClickCommand::enableAutoAttack)))
 			);
@@ -33,6 +35,8 @@ public final class AutoClickCommand {
 				Commands.literal("autoconsume")
 					.then(Commands.literal("off")
 						.executes(AutoClickCommand::disableAutoConsume))
+					.then(Commands.literal("infinite")
+						.executes(AutoClickCommand::enableInfiniteAutoConsume))
 					.then(Commands.argument("duration", DoubleArgumentType.doubleArg(MIN_DURATION_SECONDS, MAX_DURATION_SECONDS))
 						.executes(AutoClickCommand::enableAutoConsume))
 			);
@@ -55,6 +59,21 @@ public final class AutoClickCommand {
 		return 1;
 	}
 
+	private static int enableInfiniteAutoAttack(CommandContext<CommandSourceStack> context) {
+		ServerPlayer player = context.getSource().getPlayer();
+		if (player == null) {
+			context.getSource().sendFailure(Component.literal("This command can only be run by a player."));
+			return 0;
+		}
+
+		double intervalSeconds = DoubleArgumentType.getDouble(context, "interval");
+		AutoClickService.enableAutoAttackInfinite(player, intervalSeconds);
+		context.getSource().sendSuccess(() -> Component.literal(
+			"Auto attack enabled: every " + intervalSeconds + "s with infinite duration."
+		), false);
+		return 1;
+	}
+
 	private static int enableAutoConsume(CommandContext<CommandSourceStack> context) {
 		ServerPlayer player = context.getSource().getPlayer();
 		if (player == null) {
@@ -67,6 +86,18 @@ public final class AutoClickCommand {
 		context.getSource().sendSuccess(() -> Component.literal(
 			"Auto consume enabled for " + durationSeconds + "s."
 		), false);
+		return 1;
+	}
+
+	private static int enableInfiniteAutoConsume(CommandContext<CommandSourceStack> context) {
+		ServerPlayer player = context.getSource().getPlayer();
+		if (player == null) {
+			context.getSource().sendFailure(Component.literal("This command can only be run by a player."));
+			return 0;
+		}
+
+		AutoClickService.enableAutoConsumeInfinite(player);
+		context.getSource().sendSuccess(() -> Component.literal("Auto consume enabled with infinite duration."), false);
 		return 1;
 	}
 

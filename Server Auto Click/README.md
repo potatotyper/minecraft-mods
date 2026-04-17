@@ -14,12 +14,13 @@ Use these server commands in-game:
 
 ```
 /autoattack <interval> <duration>
+/autoattack <interval> infinite
 /autoconsume <duration>
+/autoconsume infinite
 ```
-Duration can be infinite.
 
 - `<interval>`: Attack interval in seconds (0.5 to 60).
-- `<duration>`: How long to run in seconds (0.5 to 600).
+- `<duration>`: How long to run in seconds (0.5 to 600), or use `infinite`.
 
 Optional stop commands:
 
@@ -30,4 +31,6 @@ Optional stop commands:
 
 **Examples:**
 - `/autoattack 1 15` - Attacks once per second for 15 seconds.
+- `/autoattack 0.5 infinite` - Attacks every 0.5 seconds until turned off.
 - `/autoconsume 8` - Uses held item repeatedly for 8 seconds.
+- `/autoconsume infinite` - Keeps using the held item until turned off.

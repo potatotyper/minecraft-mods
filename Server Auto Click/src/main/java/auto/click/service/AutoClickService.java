@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class AutoClickService {
 	private static final double ENTITY_REACH = 4.5D;
+	private static final long INFINITE_END = Long.MAX_VALUE;
 	private static final Map<UUID, ActiveAutoAttack> ACTIVE_ATTACKS = new ConcurrentHashMap<>();
 	private static final Map<UUID, ActiveAutoConsume> ACTIVE_CONSUMES = new ConcurrentHashMap<>();
 
@@ -56,6 +57,12 @@ public final class AutoClickService {
 		ACTIVE_ATTACKS.put(player.getUUID(), new ActiveAutoAttack(intervalMillis, now, now + durationMillis));
 	}
 
+	public static void enableAutoAttackInfinite(ServerPlayer player, double intervalSeconds) {
+		long intervalMillis = Math.round(intervalSeconds * 1000.0D);
+		long now = System.currentTimeMillis();
+		ACTIVE_ATTACKS.put(player.getUUID(), new ActiveAutoAttack(intervalMillis, now, INFINITE_END));
+	}
+
 	public static void disableAutoAttack(ServerPlayer player) {
 		ACTIVE_ATTACKS.remove(player.getUUID());
 	}
@@ -64,6 +71,10 @@ public final class AutoClickService {
 		long now = System.currentTimeMillis();
 		long durationMillis = Math.round(durationSeconds * 1000.0D);
 		ACTIVE_CONSUMES.put(player.getUUID(), new ActiveAutoConsume(now + durationMillis));
+	}
+
+	public static void enableAutoConsumeInfinite(ServerPlayer player) {
+		ACTIVE_CONSUMES.put(player.getUUID(), new ActiveAutoConsume(INFINITE_END));
 	}
 
 	public static void disableAutoConsume(ServerPlayer player) {
