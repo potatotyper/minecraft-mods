@@ -20,8 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class WaypointCompassService {
-	private static final long ACTIONBAR_INTERVAL_MILLIS = 250L;
-	private static final Map<UUID, Long> LAST_ACTIONBAR_SENT = new ConcurrentHashMap<>();
+	private static final Map<UUID, String> LAST_ACTIONBAR_TEXT = new ConcurrentHashMap<>();
 
 	private WaypointCompassService() {
 	}
@@ -41,27 +40,39 @@ public final class WaypointCompassService {
 		if (dimensionId != null) {
 			ResourceKey<Level> dimensionKey = ResourceKey.create(Registries.DIMENSION, dimensionId);
 			GlobalPos globalPos = GlobalPos.of(dimensionKey, waypoint.blockPos());
-			stack.set(DataComponents.LODESTONE_TRACKER, new LodestoneTracker(Optional.of(globalPos), true));
+			// Keep tracking to explicit coordinates without requiring an actual lodestone block.
+			stack.set(DataComponents.LODESTONE_TRACKER, new LodestoneTracker(Optional.of(globalPos), false));
 		}
 
-		stack.set(DataComponents.CUSTOM_NAME, Component.literal("Waypoint Compass: " + waypoint.getName()));
+		stack.set(DataComponents.CUSTOM_NAME, Component.literal(
+			waypoint.getName() + " (" + waypoint.getX() + ", " + waypoint.getY() + ", " + waypoint.getZ() + ")"
+		));
 		return stack;
+	}
+
+	public static int removeWaypointCompasses(ServerPlayer player) {
+		int removed = 0;
+		for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+			ItemStack stack = player.getInventory().getItem(slot);
+			if (isWaypointCompass(stack)) {
+				removed += stack.getCount();
+				player.getInventory().setItem(slot, ItemStack.EMPTY);
+			}
+		}
+		LAST_ACTIONBAR_TEXT.remove(player.getUUID());
+		return removed;
 	}
 
 	private static void sendHeldCompassWaypointInfo(ServerPlayer player) {
 		ItemStack held = findHeldCompass(player);
 		if (held.isEmpty()) {
-			return;
-		}
-
-		Long last = LAST_ACTIONBAR_SENT.get(player.getUUID());
-		long now = System.currentTimeMillis();
-		if (last != null && now - last < ACTIONBAR_INTERVAL_MILLIS) {
+			LAST_ACTIONBAR_TEXT.remove(player.getUUID());
 			return;
 		}
 
 		LodestoneTracker tracker = held.get(DataComponents.LODESTONE_TRACKER);
 		if (tracker == null || tracker.target().isEmpty()) {
+			LAST_ACTIONBAR_TEXT.remove(player.getUUID());
 			return;
 		}
 
@@ -90,14 +101,17 @@ public final class WaypointCompassService {
 			distanceText = distance + "m";
 		}
 
-		Component text = Component.literal(
+		String actionbar =
 			"Waypoint " + waypointName + " | "
 				+ targetPos.getX() + " " + targetPos.getY() + " " + targetPos.getZ()
 				+ " | " + targetDimension
-				+ " | " + distanceText
-		);
-		player.sendSystemMessage(text, true);
-		LAST_ACTIONBAR_SENT.put(player.getUUID(), now);
+				+ " | " + distanceText;
+
+		String previous = LAST_ACTIONBAR_TEXT.get(player.getUUID());
+		if (!actionbar.equals(previous)) {
+			player.sendSystemMessage(Component.literal(actionbar), true);
+			LAST_ACTIONBAR_TEXT.put(player.getUUID(), actionbar);
+		}
 	}
 
 	private static ItemStack findHeldCompass(ServerPlayer player) {

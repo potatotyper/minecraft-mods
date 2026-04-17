@@ -1,6 +1,8 @@
 package com.centralwaypoint.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.centralwaypoint.waypoint.Waypoint;
@@ -28,14 +30,23 @@ public final class WaypointCommand {
 	}
 
 	public static void register() {
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(
-			Commands.literal("waypoint")
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+			dispatcher.register(buildRoot("cwaypoint"));
+		});
+	}
+
+	private static LiteralArgumentBuilder<CommandSourceStack> buildRoot(String rootLiteral) {
+		return Commands.literal(rootLiteral)
+			.requires(source -> true)
 				.then(Commands.literal("add")
 					.then(Commands.argument("name", StringArgumentType.word())
 						.executes(WaypointCommand::addWaypoint)))
 				.then(Commands.literal("set")
 					.then(Commands.argument("name", StringArgumentType.word())
-						.executes(WaypointCommand::setWaypoint)))
+						.then(Commands.argument("x", IntegerArgumentType.integer())
+							.then(Commands.argument("y", IntegerArgumentType.integer())
+								.then(Commands.argument("z", IntegerArgumentType.integer())
+									.executes(WaypointCommand::setWaypoint))))))
 				.then(Commands.literal("list")
 					.executes(WaypointCommand::listWaypoints))
 				.then(Commands.literal("view")
@@ -52,11 +63,12 @@ public final class WaypointCommand {
 						.then(Commands.argument("newName", StringArgumentType.word())
 							.executes(WaypointCommand::renameWaypoint))))
 				.then(Commands.literal("compass")
-					.then(Commands.literal("add")
+					.then(Commands.literal("get")
 						.then(Commands.argument("name", StringArgumentType.word())
 							.suggests(WAYPOINT_SUGGESTIONS)
-							.executes(WaypointCommand::addCompass))))
-		));
+							.executes(WaypointCommand::getCompass)))
+					.then(Commands.literal("remove")
+						.executes(WaypointCommand::removeCompasses)));
 	}
 
 	private static int addWaypoint(CommandContext<CommandSourceStack> context) {
@@ -116,7 +128,10 @@ public final class WaypointCommand {
 		}
 
 		String name = StringArgumentType.getString(context, "name");
-		WaypointManager.SetResult result = WaypointManager.setWaypoint(name, player);
+		int x = IntegerArgumentType.getInteger(context, "x");
+		int y = IntegerArgumentType.getInteger(context, "y");
+		int z = IntegerArgumentType.getInteger(context, "z");
+		WaypointManager.SetResult result = WaypointManager.setWaypoint(name, x, y, z, player);
 		switch (result) {
 			case CREATED -> {
 				Waypoint waypoint = WaypointManager.getWaypoint(name).orElseThrow();
@@ -207,7 +222,7 @@ public final class WaypointCommand {
 		return 0;
 	}
 
-	private static int addCompass(CommandContext<CommandSourceStack> context) {
+	private static int getCompass(CommandContext<CommandSourceStack> context) {
 		ServerPlayer player = context.getSource().getPlayer();
 		if (player == null) {
 			context.getSource().sendFailure(Component.literal("This command can only be run by a player."));
@@ -231,6 +246,24 @@ public final class WaypointCommand {
 		context.getSource().sendSuccess(() -> Component.literal(
 			"Added waypoint compass for " + waypoint.getName() + " (" + waypoint.getX() + " " + waypoint.getY() + " " + waypoint.getZ() + ")"
 		), false);
+		return 1;
+	}
+
+	private static int removeCompasses(CommandContext<CommandSourceStack> context) {
+		ServerPlayer player = context.getSource().getPlayer();
+		if (player == null) {
+			context.getSource().sendFailure(Component.literal("This command can only be run by a player."));
+			return 0;
+		}
+
+		int removed = WaypointCompassService.removeWaypointCompasses(player);
+		player.containerMenu.broadcastChanges();
+		if (removed == 0) {
+			context.getSource().sendSuccess(() -> Component.literal("No waypoint compasses found in your inventory."), false);
+			return 1;
+		}
+
+		context.getSource().sendSuccess(() -> Component.literal("Removed " + removed + " waypoint compass(es) from your inventory."), false);
 		return 1;
 	}
 }

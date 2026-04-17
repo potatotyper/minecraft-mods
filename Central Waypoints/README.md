@@ -6,21 +6,24 @@ Players can create, view, rename, and remove named waypoints that are visible to
 
 ## Commands
 
-- `/waypoint add <name>`
+- `/cwaypoint add <name>`
 	- Saves your current position and dimension as a global waypoint.
-- `/waypoint set <name>`
-	- Creates or updates a waypoint to your current position and dimension.
-- `/waypoint list`
+- `/cwaypoint set <name> <x> <y> <z>`
+	- Creates or updates a waypoint to the specified coordinates in your current dimension.
+- `/cwaypoint list`
 	- Lists all global waypoints.
-- `/waypoint view <name>`
+- `/cwaypoint view <name>`
 	- Shows full waypoint details (coordinates, dimension, creator, timestamp).
-- `/waypoint remove <name>`
+- `/cwaypoint remove <name>`
 	- Removes a global waypoint.
-- `/waypoint rename <oldName> <newName>`
+- `/cwaypoint rename <oldName> <newName>`
 	- Renames a global waypoint.
-- `/waypoint compass add <name>`
+- `/cwaypoint compass get <name>`
 	- Gives you a compass pointing to the waypoint.
+	- Compass name includes the waypoint name and coordinates.
 	- While held, actionbar text shows target coordinates, dimension, and distance.
+- `/cwaypoint compass remove`
+	- Removes all waypoint compasses from your inventory (hotbar, main inventory, offhand).
 
 ## Waypoint Name Rules
 

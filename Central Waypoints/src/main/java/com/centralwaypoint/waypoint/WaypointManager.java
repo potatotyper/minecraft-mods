@@ -84,14 +84,14 @@ public final class WaypointManager {
 		return AddResult.CREATED;
 	}
 
-	public static synchronized SetResult setWaypoint(String rawName, ServerPlayer player) {
+	public static synchronized SetResult setWaypoint(String rawName, int x, int y, int z, ServerPlayer player) {
 		if (!isValidName(rawName)) {
 			return SetResult.INVALID_NAME;
 		}
 
 		String key = normalizeName(rawName);
 		boolean existed = store.getWaypoints().containsKey(key);
-		store.getWaypoints().put(key, Waypoint.fromPlayer(rawName, player));
+		store.getWaypoints().put(key, Waypoint.fromCoordinates(rawName, x, y, z, player));
 		save();
 		return existed ? SetResult.UPDATED : SetResult.CREATED;
 	}

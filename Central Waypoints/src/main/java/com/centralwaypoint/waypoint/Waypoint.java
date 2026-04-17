@@ -52,6 +52,19 @@ public class Waypoint {
 		);
 	}
 
+	public static Waypoint fromCoordinates(String name, int x, int y, int z, ServerPlayer player) {
+		return new Waypoint(
+			name,
+			x,
+			y,
+			z,
+			player.level().dimension().identifier().toString(),
+			player.getUUID().toString(),
+			player.getName().getString(),
+			Instant.now().toEpochMilli()
+		);
+	}
+
 	public BlockPos blockPos() {
 		return new BlockPos(x, y, z);
 	}
