@@ -1,6 +1,6 @@
 # Minecraft Server Invite
 
-DM me on LinkedIn to join and see my SMP Minecraft server — I build offices I worked on IRL inside the world. 
+DM me on LinkedIn to join and see my SMP Minecraft server. We make fun builds, including trying to rebuild offices we worked in before. 
 
 No mods needed to join, all you need is minecraft version 26.1.2. All the mods I have created and are being used on the server are server-side, and you can use them without installing anything!
 
