@@ -36,7 +36,3 @@ Players can create, view, rename, and remove named waypoints that are visible to
 Waypoints are saved to:
 
 - `config/central-waypoints.json`
-
-## License
-
-This project is available under the CC0 license.
