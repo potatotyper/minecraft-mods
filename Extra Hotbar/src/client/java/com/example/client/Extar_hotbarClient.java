@@ -1,10 +1,10 @@
 package com.example.client;
 
+import com.example.Extar_hotbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.example.Extar_hotbar;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -21,15 +20,11 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
 public class Extar_hotbarClient implements ClientModInitializer {
-	private static final String KEY_CATEGORY = "key.categories.extar_hotbar";
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("extar_hotbar.json");
 
@@ -81,7 +76,6 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		handleSlotLockToggle(client.player);
 		handleSwapKey(client.player);
 		handlePerSlotDoubleTap(client);
-		renderOverlay(client);
 	}
 
 	private void handlePanelCycle() {
@@ -211,89 +205,6 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		return true;
 	}
 
-	private void renderOverlay(Minecraft client) {
-		if (client.player == null || client.options.hideGui || client.player.isSpectator()) {
-			return;
-		}
-
-		StringBuilder overlay = new StringBuilder();
-		overlay.append(secondaryRowActive
-			? Component.translatable("text.extar_hotbar.active_secondary").getString()
-			: Component.translatable("text.extar_hotbar.active_primary").getString());
-
-		if (CONFIG.showSecondHotbar) {
-			overlay.append(" | 2nd: ");
-			for (int slot = 0; slot < 9; slot++) {
-				if (slot > 0) {
-					overlay.append(" ");
-				}
-				ItemStack stack = client.player.getInventory().getItem((CONFIG.secondaryInventoryRow - 1) * 9 + slot);
-				String name = stack.isEmpty() ? "-" : stack.getHoverName().getString();
-				overlay.append(slot + 1).append(":").append(shorten(name, 8));
-				if (CONFIG.lockedSlots.contains(slot)) {
-					overlay.append("*");
-				}
-			}
-		}
-
-		if (CONFIG.panelMode == 1 || CONFIG.panelMode == 3) {
-			overlay.append(" | ").append(Component.translatable("text.extar_hotbar.armor_panel").getString()).append(": ");
-			EquipmentSlot[] slots = new EquipmentSlot[] {
-				EquipmentSlot.HEAD,
-				EquipmentSlot.CHEST,
-				EquipmentSlot.LEGS,
-				EquipmentSlot.FEET
-			};
-			for (int i = 0; i < slots.length; i++) {
-				if (i > 0) {
-					overlay.append(", ");
-				}
-				ItemStack armor = client.player.getItemBySlot(slots[i]);
-				if (armor.isEmpty() || !armor.isDamageableItem()) {
-					overlay.append(Component.translatable("text.extar_hotbar.none").getString());
-				} else {
-					int remaining = armor.getMaxDamage() - armor.getDamageValue();
-					int percent = (int) ((remaining * 100.0f) / armor.getMaxDamage());
-					overlay.append(shorten(armor.getHoverName().getString(), 6)).append(":").append(remaining);
-					if (CONFIG.showArmorDurabilityPercent) {
-						overlay.append("(").append(percent).append("%)");
-					}
-				}
-			}
-		}
-
-		if (CONFIG.panelMode == 2 || CONFIG.panelMode == 3) {
-			overlay.append(" | ").append(Component.translatable("text.extar_hotbar.food_panel").getString()).append(": ");
-			Set<String> shown = new LinkedHashSet<>();
-			int shownCount = 0;
-			for (ItemStack stack : client.player.getInventory().getNonEquipmentItems()) {
-				FoodProperties food = stack.get(DataComponents.FOOD);
-				if (stack.isEmpty() || food == null) {
-					continue;
-				}
-				String key = stack.getItem().toString();
-				if (!shown.add(key)) {
-					continue;
-				}
-				if (shownCount++ > 0) {
-					overlay.append(", ");
-				}
-				overlay.append(shorten(stack.getHoverName().getString(), 10))
-					.append(" H:").append(food.nutrition())
-					.append(" S:").append(String.format("%.1f", food.saturation()));
-				if (shownCount >= 4) {
-					overlay.append(" ...");
-					break;
-				}
-			}
-			if (shownCount == 0) {
-				overlay.append(Component.translatable("text.extar_hotbar.none").getString());
-			}
-		}
-
-		showOverlay(Component.literal(overlay.toString()));
-	}
-
 	private void showOverlay(Component component) {
 		Minecraft client = Minecraft.getInstance();
 		if (client.gui != null) {
@@ -301,14 +212,52 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		}
 	}
 
-	private static String shorten(String value, int maxLength) {
-		if (value.length() <= maxLength) {
-			return value;
-		}
-		if (maxLength <= 1) {
-			return value.substring(0, maxLength);
-		}
-		return value.substring(0, maxLength - 1) + ".";
+	public static int getSecondaryInventoryRowZeroBased() {
+		return CONFIG.secondaryInventoryRow - 1;
+	}
+
+	public static boolean showSecondHotbar() {
+		return CONFIG.showSecondHotbar;
+	}
+
+	public static boolean showActiveIndicator() {
+		return CONFIG.showActiveIndicator;
+	}
+
+	public static int getSecondHotbarYOffset() {
+		return CONFIG.secondHotbarYOffset;
+	}
+
+	public static int getActiveIndicatorYOffset() {
+		return CONFIG.activeIndicatorYOffset;
+	}
+
+	public static boolean showArmorPanel() {
+		return CONFIG.panelMode == 1 || CONFIG.panelMode == 3;
+	}
+
+	public static boolean showFoodPanel() {
+		return CONFIG.panelMode == 2 || CONFIG.panelMode == 3;
+	}
+
+	public static int getPanelX() {
+		return CONFIG.panelX;
+	}
+
+	public static int getPanelY() {
+		return CONFIG.panelY;
+	}
+
+	public static boolean showArmorDurabilityPercent() {
+		return CONFIG.showArmorDurabilityPercent;
+	}
+
+	public static boolean isSlotLocked(int slot) {
+		return CONFIG.lockedSlots.contains(slot);
+	}
+
+	public static boolean isSecondaryRowActive() {
+		return secondaryRowActive;
 	}
 
 	private static ClientConfig loadConfig() {
@@ -350,8 +299,8 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		public int secondaryInventoryRow = 3;
 		public boolean showSecondHotbar = true;
 		public boolean showActiveIndicator = true;
-		public int secondHotbarYOffset = 24;
-		public int activeIndicatorYOffset = 36;
+		public int secondHotbarYOffset = 21;
+		public int activeIndicatorYOffset = 44;
 
 		public boolean enableDoubleTapSwap = true;
 		public int doubleTapWindowMs = 300;
@@ -360,17 +309,20 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		public boolean holdSwapsSingleSlot = false;
 
 		public int panelMode = 0;
-		public int panelX = 4;
-		public int panelY = 4;
+		public int panelX = 6;
+		public int panelY = 6;
 		public boolean showArmorDurabilityPercent = true;
 
 		public Set<Integer> lockedSlots = new HashSet<>();
 
 		private void normalize() {
 			secondaryInventoryRow = clamp(secondaryInventoryRow, 1, 3);
+			secondHotbarYOffset = clamp(secondHotbarYOffset, 0, 80);
+			activeIndicatorYOffset = clamp(activeIndicatorYOffset, 12, 140);
 			doubleTapWindowMs = clamp(doubleTapWindowMs, 100, 1000);
 			holdSwapMs = clamp(holdSwapMs, 100, 1200);
-			panelMode = clamp(panelMode, 0, 3);
+			panelX = clamp(panelX, 0, 10000);
+			panelY = clamp(panelY, 0, 10000);
 			if (lockedSlots == null) {
 				lockedSlots = new HashSet<>();
 			}
