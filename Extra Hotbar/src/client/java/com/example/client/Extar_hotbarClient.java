@@ -22,6 +22,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
@@ -193,6 +196,11 @@ public class Extar_hotbarClient implements ClientModInitializer {
 	}
 
 	private boolean swapInventorySlots(LocalPlayer player, int hotbarSlot, int sourceSlot) {
+		Minecraft client = Minecraft.getInstance();
+		if (client.gameMode == null) {
+			return false;
+		}
+
 		ItemStack hotbarStack = player.getInventory().getItem(hotbarSlot).copy();
 		ItemStack sourceStack = player.getInventory().getItem(sourceSlot).copy();
 
@@ -200,10 +208,21 @@ public class Extar_hotbarClient implements ClientModInitializer {
 			return false;
 		}
 
-		player.getInventory().setItem(hotbarSlot, sourceStack);
-		player.getInventory().setItem(sourceSlot, hotbarStack);
-		player.inventoryMenu.broadcastChanges();
+		client.gameMode.handleContainerInput(
+			player.inventoryMenu.containerId,
+			getInventoryMenuSlot(sourceSlot),
+			hotbarSlot,
+			ContainerInput.SWAP,
+			player
+		);
 		return true;
+	}
+
+	private int getInventoryMenuSlot(int inventorySlot) {
+		if (Inventory.isHotbarSlot(inventorySlot)) {
+			return InventoryMenu.USE_ROW_SLOT_START + inventorySlot;
+		}
+		return inventorySlot;
 	}
 
 	private void showOverlay(Component component) {
