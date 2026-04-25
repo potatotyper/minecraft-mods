@@ -304,8 +304,8 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		public int secondaryInventoryRow = 1;
 		public boolean showSecondHotbar = true;
 		public boolean showActiveIndicator = true;
-		public int secondHotbarYOffset = 21;
-		public int activeIndicatorYOffset = 44;
+		public int secondHotbarYOffset = 22;
+		public int activeIndicatorYOffset = 56;
 
 		public boolean enableDoubleTapSwap = true;
 		public int doubleTapWindowMs = 300;
@@ -336,6 +336,6 @@ public class Extar_hotbarClient implements ClientModInitializer {
 	}
 
 	private static int clamp(int value, int min, int max) {
-		return Math.max(min, Math.min(max, value));
+		return Math.max(min, Math.min(value, max));
 	}
 }
