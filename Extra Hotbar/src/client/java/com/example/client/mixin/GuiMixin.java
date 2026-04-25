@@ -4,14 +4,13 @@ import com.example.client.Extar_hotbarClient;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -28,6 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public abstract class GuiMixin {
+	private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
+
 	@Shadow
 	@Final
 	private Minecraft minecraft;
@@ -45,7 +46,7 @@ public abstract class GuiMixin {
 		throw new AssertionError();
 	}
 
-	@Inject(method = "extractItemHotbar", at = @At("HEAD"))
+	@Inject(method = "extractHotbarAndDecorations", at = @At("HEAD"))
 	private void extarHotbar$renderSecondHotbar(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		Player player = getCameraPlayer();
 		if (player == null || player.isSpectator() || !Extar_hotbarClient.showSecondHotbar()) {
@@ -57,13 +58,13 @@ public abstract class GuiMixin {
 		int shift = Math.max(0, Extar_hotbarClient.getSecondHotbarYOffset());
 		int hotbarX = width / 2 - 91;
 		int hotbarY = height - 22 - shift;
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, hotbarX, hotbarY, 182, 22);
 
 		int seed = 1;
-		int rowBase = Extar_hotbarClient.getSecondaryInventoryRowZeroBased() * 9;
+		int rowBase = Extar_hotbarClient.getSecondaryInventorySourceBase();
 		for (int slot = 0; slot < 9; slot++) {
-			int slotX = hotbarX + 1 + slot * 20 + 1;
+			int slotX = hotbarX + 3 + slot * 20;
 			int slotY = hotbarY + 3;
-			drawSlotFrame(graphics, slotX, slotY);
 			ItemStack stack = player.getInventory().getItem(rowBase + slot);
 
 			extractSlot(graphics, slotX, slotY, deltaTracker, player, stack, seed++);
@@ -100,7 +101,7 @@ public abstract class GuiMixin {
 			renderArmorPanel(graphics, deltaTracker, player, baseX, baseY);
 		}
 		if (Extar_hotbarClient.showFoodPanel()) {
-			renderFoodPanel(graphics, deltaTracker, player, baseX + 20, baseY);
+			renderFoodPanel(graphics, deltaTracker, player, baseX + 18, baseY);
 		}
 	}
 
@@ -113,7 +114,7 @@ public abstract class GuiMixin {
 		};
 
 		for (int i = 0; i < slots.length; i++) {
-			int rowY = y + i * 20;
+			int rowY = y + i * 18;
 			ItemStack stack = player.getItemBySlot(slots[i]);
 			drawSlotFrame(graphics, x, rowY);
 			extractSlot(graphics, x + 1, rowY, deltaTracker, player, stack, 1000 + i);
@@ -123,7 +124,7 @@ public abstract class GuiMixin {
 	private void renderFoodPanel(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, Player player, int x, int y) {
 		List<ItemStack> foodStacks = getTopFoodStacks(player, 4);
 		for (int i = 0; i < 4; i++) {
-			int rowY = y + i * 20;
+			int rowY = y + i * 18;
 			drawSlotFrame(graphics, x, rowY);
 			if (i < foodStacks.size()) {
 				extractSlot(graphics, x + 1, rowY, deltaTracker, player, foodStacks.get(i), 2000 + i);
@@ -165,8 +166,6 @@ public abstract class GuiMixin {
 	}
 
 	private void drawSlotFrame(GuiGraphicsExtractor graphics, int x, int y) {
-		graphics.fill(x - 1, y - 1, x + 18, y + 18, 0xFF000000);
-		graphics.fill(x, y, x + 17, y + 17, 0xFF8B8B8B);
-		graphics.fill(x + 1, y + 1, x + 16, y + 16, 0xFF373737);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, x, y, 18, 18);
 	}
 }

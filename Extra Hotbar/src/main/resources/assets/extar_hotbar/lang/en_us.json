@@ -1,5 +1,6 @@
 {
   "key.categories.extar_hotbar": "Extra Hotbar",
+  "key.categories.extar_hotbar.keybinds": "Extra Hotbar",
   "key.extar_hotbar.swap": "Swap Hotbars",
   "key.extar_hotbar.cycle_panels": "Cycle Armor/Food Panels",
   "key.extar_hotbar.toggle_slot_lock": "Toggle Slot Lock",

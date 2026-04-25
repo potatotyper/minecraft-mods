@@ -21,6 +21,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
@@ -44,7 +45,7 @@ public class Extar_hotbarClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		KeyMapping.Category keyCategory = KeyMapping.Category.MISC;
+		KeyMapping.Category keyCategory = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("extar_hotbar", "keybinds"));
 		swapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 			"key.extar_hotbar.swap",
 			InputConstants.Type.KEYSYM,
@@ -159,7 +160,7 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		if (player.isSpectator()) {
 			return;
 		}
-		int sourceBase = (CONFIG.secondaryInventoryRow - 1) * 9;
+		int sourceBase = getSecondaryInventorySourceBase();
 		boolean swappedAny = false;
 
 		for (int slot = 0; slot < 9; slot++) {
@@ -184,7 +185,7 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		if (player.isSpectator() || CONFIG.lockedSlots.contains(slot)) {
 			return;
 		}
-		int sourceSlot = (CONFIG.secondaryInventoryRow - 1) * 9 + slot;
+		int sourceSlot = getSecondaryInventorySourceBase() + slot;
 		if (sourceSlot < 0 || sourceSlot >= player.getInventory().getContainerSize()) {
 			return;
 		}
@@ -214,6 +215,10 @@ public class Extar_hotbarClient implements ClientModInitializer {
 
 	public static int getSecondaryInventoryRowZeroBased() {
 		return CONFIG.secondaryInventoryRow - 1;
+	}
+
+	public static int getSecondaryInventorySourceBase() {
+		return 9 + getSecondaryInventoryRowZeroBased() * 9;
 	}
 
 	public static boolean showSecondHotbar() {
@@ -296,7 +301,7 @@ public class Extar_hotbarClient implements ClientModInitializer {
 	}
 
 	private static class ClientConfig {
-		public int secondaryInventoryRow = 3;
+		public int secondaryInventoryRow = 1;
 		public boolean showSecondHotbar = true;
 		public boolean showActiveIndicator = true;
 		public int secondHotbarYOffset = 21;
