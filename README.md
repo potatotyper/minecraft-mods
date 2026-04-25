@@ -3,7 +3,7 @@
 
 DM me on LinkedIn to join and see my SMP Minecraft server. We make fun builds, including trying to rebuild offices we worked in before.
 
-No mods needed to join, all you need is minecraft version 26.1.2. All the mods I have created and are being used on the server are server-side, and you can use them without installing anything!
+No mods needed to join, all you need is minecraft version 26.1.2. The server-side mods I have created can be used without installing anything. This repository also includes optional client-side utility mods you can install locally if you want some extra features.
 
 ---
 
@@ -42,6 +42,31 @@ All commands are available in-game. Waypoints are global and visible to all play
 
 **Storage:**
 Waypoints are saved to `config/central-waypoints.json`.
+
+---
+
+### Extra Hotbar
+
+**Description:**
+A Fabric client mod that adds a second hotbar display, hotbar row swapping, slot locks, and compact HUD panels for armor and food inventory info.
+
+**How to Use:**
+Install this locally on the client. It is optional and is not required to join the server.
+
+**Default Keybinds:**
+- `R`
+	- Swap between the visible hotbar and the configured secondary inventory row.
+- `H`
+	- Cycle HUD panels through Off, Armor, Food, and Both.
+- `K`
+	- Lock or unlock the currently selected hotbar slot.
+- Double-tap `1`-`9`
+	- Swap only that matching hotbar slot with the secondary row.
+
+**Notes:**
+- Full-row swaps skip locked slots.
+- The secondary row can be configured as inventory row `1`-`3`.
+- Settings are saved to `config/extar_hotbar.json`.
 
 ---
 
