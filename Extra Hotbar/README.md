@@ -28,7 +28,7 @@ Fabric client mod that adds dual-hotbar swapping utilities and compact HUD info 
 
 - `R`: Swap hotbars.
 - `H`: Cycle HUD panels (`Off -> Armor -> Food -> Both`).
-- `L`: Toggle lock on the currently selected hotbar slot.
+- `K`: Toggle lock on the currently selected hotbar slot.
 - `1`-`9` double-tap: Swap a single corresponding hotbar slot.
 
 You can rebind these in Minecraft controls.

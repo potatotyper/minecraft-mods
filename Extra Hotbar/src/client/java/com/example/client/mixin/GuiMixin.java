@@ -27,8 +27,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public abstract class GuiMixin {
-	private static final Identifier SLOT_SPRITE = Identifier.withDefaultNamespace("container/slot");
-
 	@Shadow
 	@Final
 	private Minecraft minecraft;
@@ -45,6 +43,8 @@ public abstract class GuiMixin {
 	private void extractSlot(GuiGraphicsExtractor graphics, int x, int y, DeltaTracker deltaTracker, Player player, ItemStack stack, int seed) {
 		throw new AssertionError();
 	}
+
+	private boolean extarHotbar$poseShifted = false;
 
 	@Inject(method = "extractHotbarAndDecorations", at = @At("HEAD"))
 	private void extarHotbar$renderSecondHotbar(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
@@ -75,11 +75,34 @@ public abstract class GuiMixin {
 		}
 	}
 
+	@Inject(
+		method = "extractHotbarAndDecorations",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/gui/Gui;extractItemHotbar(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V",
+			shift = At.Shift.AFTER
+		)
+	)
+	private void extarHotbar$shiftHudUp(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+		if (Extar_hotbarClient.showSecondHotbar()) {
+			int shift = Math.max(0, Extar_hotbarClient.getSecondHotbarYOffset());
+			graphics.pose().translate(0.0f, (float) -shift);
+			this.extarHotbar$poseShifted = true;
+		}
+	}
+
 	@Inject(method = "extractHotbarAndDecorations", at = @At("TAIL"))
 	private void extarHotbar$renderPanels(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		Player player = getCameraPlayer();
 		if (player == null || player.isSpectator()) {
 			return;
+		}
+
+		// Pop pose translation if it was pushed so panels render at absolute positions
+		if (this.extarHotbar$poseShifted) {
+			int shift = Math.max(0, Extar_hotbarClient.getSecondHotbarYOffset());
+			graphics.pose().translate(0.0f, (float) shift);
+			this.extarHotbar$poseShifted = false;
 		}
 
 		int width = graphics.guiWidth();
@@ -95,8 +118,9 @@ public abstract class GuiMixin {
 			graphics.text(minecraft.font, text, x, y, 0xFFFFFF, true);
 		}
 
-		int baseX = 8;
-		int baseY = height - 22 - 80 - 8;
+		// Position panels at exact bottom left
+		int baseX = 2;
+		int baseY = height - 64;
 		if (Extar_hotbarClient.showArmorPanel()) {
 			renderArmorPanel(graphics, deltaTracker, player, baseX, baseY);
 		}
@@ -113,21 +137,26 @@ public abstract class GuiMixin {
 			EquipmentSlot.FEET
 		};
 
+		// Subtle HUD background
+		graphics.fill(x - 1, y - 1, x + 17, y + 64, 0x44000000);
+
 		for (int i = 0; i < slots.length; i++) {
-			int rowY = y + i * 18;
+			int rowY = y + i * 16;
 			ItemStack stack = player.getItemBySlot(slots[i]);
-			drawSlotFrame(graphics, x, rowY);
-			extractSlot(graphics, x + 1, rowY, deltaTracker, player, stack, 1000 + i);
+			extractSlot(graphics, x, rowY, deltaTracker, player, stack, 1000 + i);
 		}
 	}
 
 	private void renderFoodPanel(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, Player player, int x, int y) {
 		List<ItemStack> foodStacks = getTopFoodStacks(player, 4);
+
+		// Subtle HUD background
+		graphics.fill(x - 1, y - 1, x + 17, y + 64, 0x44000000);
+
 		for (int i = 0; i < 4; i++) {
-			int rowY = y + i * 18;
-			drawSlotFrame(graphics, x, rowY);
+			int rowY = y + i * 16;
 			if (i < foodStacks.size()) {
-				extractSlot(graphics, x + 1, rowY, deltaTracker, player, foodStacks.get(i), 2000 + i);
+				extractSlot(graphics, x, rowY, deltaTracker, player, foodStacks.get(i), 2000 + i);
 			}
 		}
 	}
@@ -163,9 +192,5 @@ public abstract class GuiMixin {
 			return new ArrayList<>(foods.subList(0, maxItems));
 		}
 		return foods;
-	}
-
-	private void drawSlotFrame(GuiGraphicsExtractor graphics, int x, int y) {
-		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, x, y, 18, 18);
 	}
 }

@@ -61,7 +61,7 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		slotLockKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 			"key.extar_hotbar.toggle_slot_lock",
 			InputConstants.Type.KEYSYM,
-			GLFW.GLFW_KEY_L,
+			GLFW.GLFW_KEY_K,
 			keyCategory
 		));
 
@@ -111,9 +111,9 @@ public class Extar_hotbarClient implements ClientModInitializer {
 
 		if (CONFIG.enableHoldSwap && pressed && !swapHandledOnHold && now - swapKeyTimer >= CONFIG.holdSwapMs) {
 			if (CONFIG.holdSwapsSingleSlot) {
-				swapSingleSlot(player, player.getInventory().getSelectedSlot());
-			} else {
 				swapFullRow(player);
+			} else {
+				swapSingleSlot(player, player.getInventory().getSelectedSlot());
 			}
 			swapHandledOnHold = true;
 		}
@@ -121,9 +121,9 @@ public class Extar_hotbarClient implements ClientModInitializer {
 		if (!pressed && swapPressedLastTick) {
 			if (!CONFIG.enableHoldSwap || now - swapKeyTimer < CONFIG.holdSwapMs) {
 				if (CONFIG.enableHoldSwap && CONFIG.holdSwapsSingleSlot) {
-					swapFullRow(player);
-				} else if (CONFIG.enableHoldSwap) {
 					swapSingleSlot(player, player.getInventory().getSelectedSlot());
+				} else if (CONFIG.enableHoldSwap) {
+					swapFullRow(player);
 				} else {
 					swapFullRow(player);
 				}
