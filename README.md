@@ -107,3 +107,4 @@ Players use the following commands in-game:
 - https://modrinth.com/mod/disable-elytra-fabric
 - https://modrinth.com/mod/server-auto-click
 - https://modrinth.com/mod/central-waypoints
+- https://modrinth.com/mod/extra-hotbar
