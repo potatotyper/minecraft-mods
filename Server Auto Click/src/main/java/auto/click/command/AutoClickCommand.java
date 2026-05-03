@@ -2,10 +2,12 @@ package auto.click.command;
 
 import auto.click.service.AutoClickService;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -14,6 +16,8 @@ public final class AutoClickCommand {
 	private static final double MAX_INTERVAL_SECONDS = 60.0D;
 	private static final double MIN_DURATION_SECONDS = 0.5D;
 	private static final double MAX_DURATION_SECONDS = 600.0D;
+	private static final String[] INTERVAL_SUGGESTIONS = {"0.5", "1", "2", "5", "10", "30", "60"};
+	private static final String[] DURATION_SUGGESTIONS = {"5", "10", "30", "60", "300", "600"};
 
 	private AutoClickCommand() {
 	}
@@ -22,25 +26,46 @@ public final class AutoClickCommand {
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			dispatcher.register(
 				Commands.literal("autoattack")
+					.then(Commands.literal("on")
+						.then(intervalArgument()
+							.then(Commands.literal("infinite")
+								.executes(AutoClickCommand::enableInfiniteAutoAttack))
+							.then(durationArgument()
+								.executes(AutoClickCommand::enableAutoAttack))))
 					.then(Commands.literal("off")
 						.executes(AutoClickCommand::disableAutoAttack))
-					.then(Commands.argument("interval", DoubleArgumentType.doubleArg(MIN_INTERVAL_SECONDS, MAX_INTERVAL_SECONDS))
+					.then(intervalArgument()
 						.then(Commands.literal("infinite")
 							.executes(AutoClickCommand::enableInfiniteAutoAttack))
-						.then(Commands.argument("duration", DoubleArgumentType.doubleArg(MIN_DURATION_SECONDS, MAX_DURATION_SECONDS))
+						.then(durationArgument()
 							.executes(AutoClickCommand::enableAutoAttack)))
 			);
 
 			dispatcher.register(
 				Commands.literal("autoconsume")
+					.then(Commands.literal("on")
+						.then(Commands.literal("infinite")
+							.executes(AutoClickCommand::enableInfiniteAutoConsume))
+						.then(durationArgument()
+							.executes(AutoClickCommand::enableAutoConsume)))
 					.then(Commands.literal("off")
 						.executes(AutoClickCommand::disableAutoConsume))
 					.then(Commands.literal("infinite")
 						.executes(AutoClickCommand::enableInfiniteAutoConsume))
-					.then(Commands.argument("duration", DoubleArgumentType.doubleArg(MIN_DURATION_SECONDS, MAX_DURATION_SECONDS))
+					.then(durationArgument()
 						.executes(AutoClickCommand::enableAutoConsume))
 			);
 		});
+	}
+
+	private static RequiredArgumentBuilder<CommandSourceStack, Double> intervalArgument() {
+		return Commands.argument("interval", DoubleArgumentType.doubleArg(MIN_INTERVAL_SECONDS, MAX_INTERVAL_SECONDS))
+			.suggests((context, builder) -> SharedSuggestionProvider.suggest(INTERVAL_SUGGESTIONS, builder));
+	}
+
+	private static RequiredArgumentBuilder<CommandSourceStack, Double> durationArgument() {
+		return Commands.argument("duration", DoubleArgumentType.doubleArg(MIN_DURATION_SECONDS, MAX_DURATION_SECONDS))
+			.suggests((context, builder) -> SharedSuggestionProvider.suggest(DURATION_SUGGESTIONS, builder));
 	}
 
 	private static int enableAutoAttack(CommandContext<CommandSourceStack> context) {
