@@ -5,8 +5,8 @@ import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Extar_hotbar implements ModInitializer {
-	public static final String MOD_ID = "extar_hotbar";
+public class Extra_hotbar implements ModInitializer {
+	public static final String MOD_ID = "extra_hotbar";
 
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.

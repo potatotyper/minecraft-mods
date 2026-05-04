@@ -42,7 +42,7 @@ You can rebind these in Minecraft controls.
 
 ## Configuration
 
-Config file: `config/extar_hotbar.json`
+Config file: `config/extra_hotbar.json`
 
 Main settings:
 

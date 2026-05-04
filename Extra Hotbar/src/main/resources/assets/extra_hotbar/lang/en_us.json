@@ -1,0 +1,14 @@
+{
+  "key.categories.extra_hotbar": "Extra Hotbar",
+  "key.categories.extra_hotbar.keybinds": "Extra Hotbar",
+  "key.extra_hotbar.swap": "Swap Hotbars",
+  "key.extra_hotbar.cycle_panels": "Cycle Armor/Food Panels",
+  "key.extra_hotbar.toggle_slot_lock": "Toggle Slot Lock",
+  "text.extra_hotbar.slot_locked": "Locked hotbar slot %s",
+  "text.extra_hotbar.slot_unlocked": "Unlocked hotbar slot %s",
+  "text.extra_hotbar.active_primary": "Active Bar: Primary",
+  "text.extra_hotbar.active_secondary": "Active Bar: Secondary",
+  "text.extra_hotbar.armor_panel": "Armor",
+  "text.extra_hotbar.food_panel": "Food",
+  "text.extra_hotbar.none": "None"
+}

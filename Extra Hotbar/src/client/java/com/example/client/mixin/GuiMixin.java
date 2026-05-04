@@ -1,6 +1,6 @@
 package com.example.client.mixin;
 
-import com.example.client.Extar_hotbarClient;
+import com.example.client.Extra_hotbarClient;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,26 +49,26 @@ public abstract class GuiMixin {
 	@Inject(method = "extractHotbarAndDecorations", at = @At("HEAD"))
 	private void extarHotbar$renderSecondHotbar(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
 		Player player = getCameraPlayer();
-		if (player == null || player.isSpectator() || !Extar_hotbarClient.showSecondHotbar()) {
+		if (player == null || player.isSpectator() || !Extra_hotbarClient.showSecondHotbar()) {
 			return;
 		}
 
 		int width = graphics.guiWidth();
 		int height = graphics.guiHeight();
-		int shift = Math.max(0, Extar_hotbarClient.getSecondHotbarYOffset());
+		int shift = Math.max(0, Extra_hotbarClient.getSecondHotbarYOffset());
 		int hotbarX = width / 2 - 91;
 		int hotbarY = height - 22 - shift;
 		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, hotbarX, hotbarY, 182, 22);
 
 		int seed = 1;
-		int rowBase = Extar_hotbarClient.getSecondaryInventorySourceBase();
+		int rowBase = Extra_hotbarClient.getSecondaryInventorySourceBase();
 		for (int slot = 0; slot < 9; slot++) {
 			int slotX = hotbarX + 3 + slot * 20;
 			int slotY = hotbarY + 3;
 			ItemStack stack = player.getInventory().getItem(rowBase + slot);
 
 			extractSlot(graphics, slotX, slotY, deltaTracker, player, stack, seed++);
-			if (Extar_hotbarClient.isSlotLocked(slot)) {
+			if (Extra_hotbarClient.isSlotLocked(slot)) {
 				graphics.fill(slotX - 1, slotY - 1, slotX + 17, slotY + 17, 0x55AA3333);
 			}
 			graphics.text(minecraft.font, String.valueOf(slot + 1), slotX + 1, slotY - 8, 0xFFFFFF, false);
@@ -84,8 +84,8 @@ public abstract class GuiMixin {
 		)
 	)
 	private void extarHotbar$shiftHudUp(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
-		if (Extar_hotbarClient.showSecondHotbar()) {
-			int shift = Math.max(0, Extar_hotbarClient.getSecondHotbarYOffset());
+		if (Extra_hotbarClient.showSecondHotbar()) {
+			int shift = Math.max(0, Extra_hotbarClient.getSecondHotbarYOffset());
 			graphics.pose().translate(0.0f, (float) -shift);
 			this.extarHotbar$poseShifted = true;
 		}
@@ -100,7 +100,7 @@ public abstract class GuiMixin {
 
 		// Pop pose translation if it was pushed so panels render at absolute positions
 		if (this.extarHotbar$poseShifted) {
-			int shift = Math.max(0, Extar_hotbarClient.getSecondHotbarYOffset());
+			int shift = Math.max(0, Extra_hotbarClient.getSecondHotbarYOffset());
 			graphics.pose().translate(0.0f, (float) shift);
 			this.extarHotbar$poseShifted = false;
 		}
@@ -108,23 +108,23 @@ public abstract class GuiMixin {
 		int width = graphics.guiWidth();
 		int height = graphics.guiHeight();
 
-		if (Extar_hotbarClient.showActiveIndicator()) {
-			String text = Extar_hotbarClient.isSecondaryRowActive()
-				? Component.translatable("text.extar_hotbar.active_secondary").getString()
-				: Component.translatable("text.extar_hotbar.active_primary").getString();
+		if (Extra_hotbarClient.showActiveIndicator()) {
+			String text = Extra_hotbarClient.isSecondaryRowActive()
+				? Component.translatable("text.extra_hotbar.active_secondary").getString()
+				: Component.translatable("text.extra_hotbar.active_primary").getString();
 			int textWidth = minecraft.font.width(text);
 			int x = width / 2 - (textWidth / 2);
-			int y = height - Extar_hotbarClient.getActiveIndicatorYOffset();
+			int y = height - Extra_hotbarClient.getActiveIndicatorYOffset();
 			graphics.text(minecraft.font, text, x, y, 0xFFFFFF, true);
 		}
 
 		// Position panels at exact bottom left
 		int baseX = 2;
 		int baseY = height - 64;
-		if (Extar_hotbarClient.showArmorPanel()) {
+		if (Extra_hotbarClient.showArmorPanel()) {
 			renderArmorPanel(graphics, deltaTracker, player, baseX, baseY);
 		}
-		if (Extar_hotbarClient.showFoodPanel()) {
+		if (Extra_hotbarClient.showFoodPanel()) {
 			renderFoodPanel(graphics, deltaTracker, player, baseX + 18, baseY);
 		}
 	}

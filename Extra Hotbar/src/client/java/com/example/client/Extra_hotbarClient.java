@@ -1,6 +1,6 @@
 package com.example.client;
 
-import com.example.Extar_hotbar;
+import com.example.Extra_hotbar;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -28,9 +28,9 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
-public class Extar_hotbarClient implements ClientModInitializer {
+public class Extra_hotbarClient implements ClientModInitializer {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-	private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("extar_hotbar.json");
+	private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("extra_hotbar.json");
 
 	private static final ClientConfig CONFIG = loadConfig();
 
@@ -48,21 +48,21 @@ public class Extar_hotbarClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		KeyMapping.Category keyCategory = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("extar_hotbar", "keybinds"));
+		KeyMapping.Category keyCategory = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("extra_hotbar", "keybinds"));
 		swapKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-			"key.extar_hotbar.swap",
+			"key.extra_hotbar.swap",
 			InputConstants.Type.KEYSYM,
 			GLFW.GLFW_KEY_R,
 			keyCategory
 		));
 		panelCycleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-			"key.extar_hotbar.cycle_panels",
+			"key.extra_hotbar.cycle_panels",
 			InputConstants.Type.KEYSYM,
 			GLFW.GLFW_KEY_H,
 			keyCategory
 		));
 		slotLockKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-			"key.extar_hotbar.toggle_slot_lock",
+			"key.extra_hotbar.toggle_slot_lock",
 			InputConstants.Type.KEYSYM,
 			GLFW.GLFW_KEY_K,
 			keyCategory
@@ -94,10 +94,10 @@ public class Extar_hotbarClient implements ClientModInitializer {
 			int selectedSlot = player.getInventory().getSelectedSlot();
 			if (CONFIG.lockedSlots.contains(selectedSlot)) {
 				CONFIG.lockedSlots.remove(selectedSlot);
-				showOverlay(Component.translatable("text.extar_hotbar.slot_unlocked", selectedSlot + 1));
+				showOverlay(Component.translatable("text.extra_hotbar.slot_unlocked", selectedSlot + 1));
 			} else {
 				CONFIG.lockedSlots.add(selectedSlot);
-				showOverlay(Component.translatable("text.extar_hotbar.slot_locked", selectedSlot + 1));
+				showOverlay(Component.translatable("text.extra_hotbar.slot_locked", selectedSlot + 1));
 			}
 			saveConfig();
 		}
@@ -299,7 +299,7 @@ public class Extar_hotbarClient implements ClientModInitializer {
 			loaded.normalize();
 			return loaded;
 		} catch (IOException | JsonParseException error) {
-			Extar_hotbar.LOGGER.error("Failed to load extar_hotbar config, using defaults", error);
+			Extra_hotbar.LOGGER.error("Failed to load extra_hotbar config, using defaults", error);
 			return new ClientConfig();
 		}
 	}
@@ -315,7 +315,7 @@ public class Extar_hotbarClient implements ClientModInitializer {
 				GSON.toJson(config, writer);
 			}
 		} catch (IOException error) {
-			Extar_hotbar.LOGGER.error("Failed to save extar_hotbar config", error);
+			Extra_hotbar.LOGGER.error("Failed to save extra_hotbar config", error);
 		}
 	}
 
