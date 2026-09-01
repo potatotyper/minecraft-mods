@@ -228,7 +228,7 @@ public class Extra_hotbarClient implements ClientModInitializer {
 	private void showOverlay(Component component) {
 		Minecraft client = Minecraft.getInstance();
 		if (client.gui != null) {
-			client.gui.setOverlayMessage(component, false);
+			client.gui.hud.setOverlayMessage(component, false);
 		}
 	}
 
